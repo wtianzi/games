@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>A* Grid Game</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+  <style>
+    body {
+      font-family: monospace;
+      margin: 10px;
+      text-align: center;
+      user-select: none;
+    }
+    #gameContainer {
+      display: inline-block;
+      position: relative;
+      touch-action: none;
+    }
+    canvas {
+      border: 1px solid black;
+      image-rendering: pixelated;
+      background: #eee;
+      max-width: 100vw;
+      height: auto;
+      display: block;
+    }
+    #controls {
+      margin: 10px 0;
+    }
+    #info, #score {
+      font-size: 16px;
+      margin: 4px 0;
+    }
+    button {
+      font-size: 16px;
+      margin: 0 5px;
+      padding: 8px 16px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <h2>A* Grid Game</h2>
+  <p>Tap/click and drag to place walls. Slow the robot to win!</p>
+
+  <div id="controls">
+    <button id="resetBtn">Reset</button>
+    <button id="pauseBtn">Pause</button>
+  </div>
+
+  <div id="gameContainer">
+    <canvas id="gameCanvas"></canvas>
+  </div>
+
+  <div id="info">
+    Steps: 0 | Walls: 0 | Path Exists: Yes
+  </div>
+  <div id="score">
+    Score: 0
+  </div>
+
+  <script>
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+    const gameContainer = document.getElementById('gameContainer');
+    const infoDiv = document.getElementById('info');
+    const scoreDiv = document.getElementById('score');
+    const resetBtn = document.getElementById('resetBtn');
+    const pauseBtn = document.getElementById('pauseBtn');
+
+    // Grid config
+    const gridSize = 50;
+    let cellSize = 10;  // will be recalculated for responsiveness
+
+    // Game state variables
+    let grid = [];
+    const start = { x: 0, y: 0 };
+    const goal = { x: gridSize - 1, y: gridSize - 1 };
+    let path = [];
+    let robotPos = { ...start };
+    let tick = 0;
+    let interval = 200;
+    let drawing = false;
+    let stepsTaken = 0;
+    let pathExists = true;
+    let paused = false;
+    let gameLoop;
+
+    // Responsive canvas sizing
+    function resizeCanvas() {
+      // Max width allowed
+      const maxWidth = window.innerWidth * 0.95;
+      // Calculate cell size to fit grid in maxWidth
+      cellSize = Math.floor(maxWidth / gridSize);
+      // Set canvas size accordingly
+      canvas.width = cellSize * gridSize;
+      canvas.height = cellSize * gridSize;
+    }
+
+    // Initialize grid and reset game variables
+    function initGrid() {
+      grid = Array.from({ length: gridSize }, () => Array(gridSize).fill(0));
+      robotPos = { ...start };
+      path = [];
+      stepsTaken = 0;
+      pathExists = true;
+      tick = 0;
+      paused = false;
+      pauseBtn.textContent = 'Pause';
+      findPath();
+      updateInfo();
+      updateScore();
+    }
+
+    function getGridCoords(e) {
+      const rect = canvas.getBoundingClientRect();
+      let clientX, clientY;
+      if (e.touches) {
+        clientX = e.touches[0].clientX;
+        clientY = e.touches[0].clientY;
+      } else {
+        clientX = e.clientX;
+        clientY = e.clientY;
+      }
+      const x = Math.floor((clientX - rect.left) / cellSize);
+      const y = Math.floor((clientY - rect.top) / cellSize);
+      return { x, y };
+    }
+
+    // Wall drawing handlers
+    function tryDrawWall(x, y) {
+      if (
+        x >= 0 && x < gridSize &&
+        y >= 0 && y < gridSize &&
+        (x !== start.x || y !== start.y) &&
+        (x !== goal.x || y !== goal.y)
+      ) {
+        if (!grid[y][x]) {
+          grid[y][x] = 1;
+          findPath(robotPos);
+          updateInfo();
+          updateScore();
+        }
+      }
+    }
+
+    canvas.addEventListener('mousedown', (e) => {
+      if (paused) return;
+      drawing = true;
+      const { x, y } = getGridCoords(e);
+      tryDrawWall(x, y);
+    });
+
+    canvas.addEventListener('mouseup', () => {
+      drawing = false;
+    });
+
+    canvas.addEventListener('mouseleave', () => {
+      drawing = false;
+    });
+
+    canvas.addEventListener('mousemove', (e) => {
+      if (paused) return;
+      if (drawing) {
+        const { x, y } = getGridCoords(e);
+        tryDrawWall(x, y);
+      }
+    });
+
+    // Touch support
+    canvas.addEventListener('touchstart', (e) => {
+      if (paused) return;
+      e.preventDefault();
+      drawing = true;
+      const { x, y } = getGridCoords(e);
+      tryDrawWall(x, y);
+    }, { passive: false });
+
+    canvas.addEventListener('touchmove', (e) => {
+      if (paused) return;
+      e.preventDefault();
+      if (drawing) {
+        const { x, y } = getGridCoords(e);
+        tryDrawWall(x, y);
+      }
+    }, { passive: false });
+
+    canvas.addEventListener('touchend', (e) => {
+      drawing = false;
+    });
+
+    // Draw the grid, walls, start, goal, and robot
+    function draw() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      for (let y = 0; y < gridSize; y++) {
+        for (let x = 0; x < gridSize; x++) {
+          if (grid[y][x]) {
+            ctx.fillStyle = 'black';
+            ctx.fillRect(x * cellSize, y * cellSize, cellSize, cellSize);
+          }
+        }
+      }
+
+      ctx.fillStyle = 'blue';
+      ctx.fillRect(start.x * cellSize, start.y * cellSize, cellSize, cellSize);
+
+      ctx.fillStyle = 'red';
+      ctx.fillRect(goal.x * cellSize, goal.y * cellSize, cellSize, cellSize);
+
+      ctx.fillStyle = 'green';
+      ctx.fillRect(robotPos.x * cellSize, robotPos.y * cellSize, cellSize, cellSize);
+    }
+
+    // Heuristic for A*
+    function heuristic(a, b) {
+      return Math.abs(a.x - b.x) + Math.abs(a.y - b.y);
+    }
+
+    // A* pathfinding from current robot position to goal
+    function findPath(from = robotPos) {
+      let open = [{ ...from, g: 0, f: heuristic(from, goal), parent: null }];
+      const closed = new Set();
+      const key = (p) => `${p.x},${p.y}`;
+
+      while (open.length > 0) {
+        open.sort((a, b) => a.f - b.f);
+        const current = open.shift();
+
+        if (current.x === goal.x && current.y === goal.y) {
+          const newPath = [];
+          let node = current;
+          while (node) {
+            newPath.unshift({ x: node.x, y: node.y });
+            node = node.parent;
+          }
+          path = newPath;
+          pathExists = true;
+          return;
+        }
+
+        closed.add(key(current));
+        const neighbors = [
+          { x: current.x + 1, y: current.y },
+          { x: current.x - 1, y: current.y },
+          { x: current.x, y: current.y + 1 },
+          { x: current.x, y: current.y - 1 }
+        ];
+
+        for (const n of neighbors) {
+          if (
+            n.x < 0 || n.x >= gridSize || n.y < 0 || n.y >= gridSize ||
+            grid[n.y][n.x] === 1 || closed.has(key(n))
+          ) continue;
+
+          const g = current.g + 1;
+          const h = heuristic(n, goal);
+          const existing = open.find(p => p.x === n.x && p.y === n.y);
+
+          if (!existing || g < existing.g) {
+            open.push({ ...n, g, f: g + h, parent: current });
+          }
+        }
+      }
+
+      path = [];
+      pathExists = false;
+    }
+
+    // Update the info text
+    function updateInfo() {
+      const wallsCount = grid.flat().filter(cell => cell === 1).length;
+      infoDiv.textContent = `Steps: ${stepsTaken} | Walls: ${wallsCount} | Path Exists: ${pathExists ? 'Yes' : 'No'}`;
+    }
+
+    // Calculate and update the score
+    function updateScore() {
+      const wallsCount = grid.flat().filter(cell => cell === 1).length;
+      let score = stepsTaken * wallsCount - (gridSize * gridSize - wallsCount) * 0.5;
+      score = Math.max(0, Math.floor(score));
+      scoreDiv.textContent = `Score: ${score}`;
+    }
+
+    // Update robot movement and game state
+    function update() {
+      if (paused) return;
+
+      tick++;
+      if (!pathExists) {
+        alert("No path to the target. You failed!");
+        clearInterval(gameLoop);
+        paused = true;
+        pauseBtn.textContent = 'Resume';
+        return;
+      }
+
+      if (path.length > 1 && tick % Math.floor(interval / 50) === 0) {
+        path.shift();
+        robotPos = path[0];
+        stepsTaken++;
+        updateInfo();
+        updateScore();
+
+        if (robotPos.x === goal.x && robotPos.y === goal.y) {
+          alert("Robot reached the goal! You lose!");
+          clearInterval(gameLoop);
+          paused = true;
+          pauseBtn.textContent = 'Resume';
+        }
+      } else if (path.length <= 1) {
+        alert("You win! Robot stuck or slowed too much.");
+        clearInterval(gameLoop);
+        paused = true;
+        pauseBtn.textContent = 'Resume';
+      }
+    }
+
+    // Main loop
+    function loop() {
+      update();
+      draw();
+    }
+
+    // Button event listeners
+    resetBtn.addEventListener('click', () => {
+      clearInterval(gameLoop);
+      initGrid();
+      gameLoop = setInterval(loop, 50);
+    });
+
+    pauseBtn.addEventListener('click', () => {
+      if (paused) {
+        paused = false;
+        pauseBtn.textContent = 'Pause';
+      } else {
+        paused = true;
+        pauseBtn.textContent = 'Resume';
+      }
+    });
+
+    // Resize canvas on load and window resize
+    window.addEventListener('resize', () => {
+      resizeCanvas();
+      draw();
+    });
+
+    // Initial setup
+    resizeCanvas();
+    initGrid();
+    gameLoop = setInterval(loop, 50);
+  </script>
+</body>
+</html>
