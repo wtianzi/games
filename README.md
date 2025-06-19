@@ -1,51 +1,40 @@
 # 🕹️ Tianzi's Web Game Collection
 
-Welcome to my collection of lightweight, browser-based games built with **HTML5** and **JavaScript**. This project is focused on fun, logic-based mini-games that run directly in the browser—no installs, no frameworks required.
+Welcome to my collection of lightweight, browser-based games built with **HTML5** and **JavaScript**. These games are designed for fun and logic, and they run directly in your browser — no installations needed!
 
-## 🌟 Featured Game
-
-### 🔷 [A* Grid Game](./a_star/)  
-🧠 **A* Pathfinding Visualization + Strategy Game**
-
-Play it here: [wtianzi.github.io/games/a_star](https://wtianzi.github.io/games/a_star/)
-
-In this logic-based puzzle game, your task is to **trap or slow down a robot** using walls while it finds its path to the goal using the A* algorithm. Great for learning and fun for experimenting with grid-based strategy.
-
-Features:
-- Real-time A* visualization
-- Mouse and touch interaction
-- Responsive canvas for mobile and desktop
-- Dynamic scoring and win/lose detection
-
-For more details, see the [`a_star/README.md`](./a_star/README.md).
+> 🔗 You can explore the live version here:  
+> [https://wtianzi.github.io/games/](https://wtianzi.github.io/games/)
 
 ---
 
-## 🎮 Upcoming Games
+## 🌟 Current Game
 
-This is just the beginning! More games are in development and will be added here soon. Planned categories include:
+### 🔷 [A* Grid Game](./a_star/index.html)
 
-- 🔁 **Puzzle games**
-- 🧩 **Pathfinding and logic**
-- 💡 **AI simulation-based games**
-- 🧠 **Strategy games with simple rules and deep gameplay**
+🧠 **Trap the robot using walls!**  
+This game visualizes the A* pathfinding algorithm in real time. Your job is to slow or block the robot before it reaches the goal.
 
-Stay tuned! ✨
+🎮 Features:
+- Real-time A* path animation
+- Wall drawing via mouse or touch
+- Dynamic score based on steps and wall use
+- Responsive design for desktop and mobile
 
-## 📁 Folder Structure
+📍 Play directly from GitHub Pages:  
+[wtianzi.github.io/games/a_star](https://wtianzi.github.io/games/a_star/)
 
-<pre>
-games/
-├── a_star/ # A* Grid Game
-├── ... # More games coming
-└── index.html # (Optional future launcher page)
-</pre>
-
-## 📬 Feedback & Ideas
-
-Have suggestions, feedback, or game ideas you'd like to see?  
-Feel free to open an issue or reach out on [LinkedIn](https://www.linkedin.com/in/tianziwang/).
+📘 More details in the [`a_star/README.md`](./a_star/README.md)
 
 ---
 
-Made with 💻 and ❤️ by Tianzi Wang
+## 🧪 Development Notes
+
+If you are running this project locally via `file://`:
+- Be sure to **link directly to each game's `index.html`**, e.g.:  
+  `./a_star/index.html` instead of `./a_star/`
+
+Or better, run a local server:
+```bash
+cd games
+python -m http.server 8000
+# then open http://localhost:8000 in your browser
