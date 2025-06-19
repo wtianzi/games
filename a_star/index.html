@@ -189,7 +189,7 @@
     });
 
     // Draw the grid, walls, start, goal, and robot
-    function draw() {
+    function draw_ori() {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
       for (let y = 0; y < gridSize; y++) {
@@ -207,6 +207,49 @@
       ctx.fillStyle = 'red';
       ctx.fillRect(goal.x * cellSize, goal.y * cellSize, cellSize, cellSize);
 
+      ctx.fillStyle = 'green';
+      ctx.fillRect(robotPos.x * cellSize, robotPos.y * cellSize, cellSize, cellSize);
+    }
+
+    function draw() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      // Draw grid background (optional light gray lines)
+      for (let y = 0; y < gridSize; y++) {
+        for (let x = 0; x < gridSize; x++) {
+          ctx.strokeStyle = '#ccc';
+          ctx.strokeRect(x * cellSize, y * cellSize, cellSize, cellSize);
+        }
+      }
+
+      // Draw walls
+      for (let y = 0; y < gridSize; y++) {
+        for (let x = 0; x < gridSize; x++) {
+          if (grid[y][x] === 1) {
+            ctx.fillStyle = 'black';
+            ctx.fillRect(x * cellSize, y * cellSize, cellSize, cellSize);
+          }
+        }
+      }
+
+      // Draw path (behind robot)
+      ctx.fillStyle = ctx.fillStyle = 'rgba(128, 0, 128, 0.4)'; //'purple';
+      for (const p of path) {
+        if ((p.x !== start.x || p.y !== start.y) &&
+            (p.x !== goal.x || p.y !== goal.y)) {
+          ctx.fillRect(p.x * cellSize, p.y * cellSize, cellSize, cellSize);
+        }
+      }
+
+      // Draw start
+      ctx.fillStyle = 'blue';
+      ctx.fillRect(start.x * cellSize, start.y * cellSize, cellSize, cellSize);
+
+      // Draw goal
+      ctx.fillStyle = 'red';
+      ctx.fillRect(goal.x * cellSize, goal.y * cellSize, cellSize, cellSize);
+
+      // Draw robot
       ctx.fillStyle = 'green';
       ctx.fillRect(robotPos.x * cellSize, robotPos.y * cellSize, cellSize, cellSize);
     }
