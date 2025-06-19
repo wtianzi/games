@@ -58,7 +58,25 @@
     Score: 0
   </div>
 
+  <div id="resultMessage" style="
+    display: none;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 24px;
+    background: rgba(0,0,0,0.8);
+    color: white;
+    padding: 20px 30px;
+    border-radius: 10px;
+    z-index: 10;
+    pointer-events: none;
+  ">
+    Result here
+  </div>
+
   <script>
+    const resultMessage = document.getElementById('resultMessage');
     const canvas = document.getElementById('gameCanvas');
     const ctx = canvas.getContext('2d');
     const gameContainer = document.getElementById('gameContainer');
@@ -323,13 +341,21 @@
       scoreDiv.textContent = `Score: ${score}`;
     }
 
+    function showResult(message) {
+      updateScore();
+      resultMessage.textContent = `${message} Final Score: ${scoreDiv.textContent.split(': ')[1]}`;
+      resultMessage.style.display = 'block';
+    }
+
     // Update robot movement and game state
     function update() {
       if (paused) return;
 
       tick++;
+
       if (!pathExists) {
-        alert("No path to the target. You failed!");
+        //alert("No path to the target. You failed!");
+        showResult("No path to the target. You win!");
         clearInterval(gameLoop);
         paused = true;
         pauseBtn.textContent = 'Resume';
@@ -344,17 +370,20 @@
         updateScore();
 
         if (robotPos.x === goal.x && robotPos.y === goal.y) {
-          alert("Robot reached the goal! You lose!");
+          //alert("Robot reached the goal! You lose!");
+          showResult("Robot reached the goal! You lose!");
           clearInterval(gameLoop);
           paused = true;
           pauseBtn.textContent = 'Resume';
         }
       } else if (path.length <= 1) {
-        alert("You win! Robot stuck or slowed too much.");
+        //alert("You win! Robot stuck or slowed too much.");
+        showResult("You win! Robot stuck or slowed too much.");
         clearInterval(gameLoop);
         paused = true;
         pauseBtn.textContent = 'Resume';
       }
+      
     }
 
     // Main loop
