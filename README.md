@@ -34,11 +34,12 @@ Stay tuned! ✨
 
 ## 📁 Folder Structure
 
+<pre>
 games/
 ├── a_star/ # A* Grid Game
 ├── ... # More games coming
 └── index.html # (Optional future launcher page)
-
+</pre>
 
 ## 📬 Feedback & Ideas
 
