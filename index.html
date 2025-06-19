@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tianzi's Web Game Collection</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      background: #f5f5f5;
+      margin: 0;
+      padding: 2rem;
+      text-align: center;
+    }
+
+    h1 {
+      font-size: 2.5rem;
+      margin-bottom: 1rem;
+    }
+
+    .game-list {
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+      max-width: 600px;
+      margin: 2rem auto;
+    }
+
+    .game-card {
+      background: white;
+      padding: 1rem 1.5rem;
+      border-radius: 12px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      transition: transform 0.2s;
+    }
+
+    .game-card:hover {
+      transform: translateY(-3px);
+    }
+
+    .game-card h2 {
+      margin: 0.2rem 0;
+    }
+
+    .game-card p {
+      margin: 0.5rem 0;
+      color: #666;
+    }
+
+    a {
+      text-decoration: none;
+      color: #0077cc;
+    }
+
+    footer {
+      margin-top: 3rem;
+      font-size: 0.9rem;
+      color: #999;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>🕹️ Tianzi's Web Game Collection</h1>
+  <p>Fun logic and strategy games, built with HTML5 and JavaScript</p>
+
+  <div class="game-list">
+    <div class="game-card">
+      <h2><a href="./a_star/index.html">A* Grid Game</a></h2>
+      <p>Use walls to block the robot! Visualize A* pathfinding in action.</p>
+    </div>
+
+    <!-- Future games will go here -->
+    <div class="game-card" style="opacity: 0.5;">
+      <h2>Coming Soon...</h2>
+      <p>More mini-games are under development. Stay tuned!</p>
+    </div>
+  </div>
+
+  <footer>
+    &copy; 2025 Tianzi Wang | <a href="https://www.linkedin.com/in/tianziwang/" target="_blank">LinkedIn</a>
+  </footer>
+
+</body>
+</html>
