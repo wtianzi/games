@@ -314,15 +314,15 @@
         ];
 
         const neighbors = [
-  { x: current.x + 1, y: current.y     },
-  { x: current.x - 1, y: current.y     },
-  { x: current.x,     y: current.y + 1 },
-  { x: current.x,     y: current.y - 1 },
-  { x: current.x + 1, y: current.y + 1 },
-  { x: current.x - 1, y: current.y - 1 },
-  { x: current.x + 1, y: current.y - 1 },
-  { x: current.x - 1, y: current.y + 1 }
-];
+          { x: current.x + 1, y: current.y     },
+          { x: current.x - 1, y: current.y     },
+          { x: current.x,     y: current.y + 1 },
+          { x: current.x,     y: current.y - 1 },
+          { x: current.x + 1, y: current.y + 1 },
+          { x: current.x - 1, y: current.y - 1 },
+          { x: current.x + 1, y: current.y - 1 },
+          { x: current.x - 1, y: current.y + 1 }
+        ];
 
         for (const n of neighbors) {
           if (
@@ -330,7 +330,12 @@
             grid[n.y][n.x] === 1 || closed.has(key(n))
           ) continue;
 
-          const g = current.g + 1;
+          const dx = Math.abs(n.x - current.x);
+          const dy = Math.abs(n.y - current.y);
+          const stepCost = (dx === 1 && dy === 1) ? Math.SQRT2 : 1;
+          const g = current.g + stepCost;
+
+         // const g = current.g + 1;
           const h = heuristic(n, goal);
           const existing = open.find(p => p.x === n.x && p.y === n.y);
 
