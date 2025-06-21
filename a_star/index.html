@@ -154,67 +154,6 @@
       return { x, y };
     }
 
-    // Wall drawing handlers
-    function tryDrawWall(x, y) {
-      if (
-        x >= 0 && x < gridSize &&
-        y >= 0 && y < gridSize &&
-        (x !== start.x || y !== start.y) &&
-        (x !== goal.x || y !== goal.y)
-      ) {
-        if (!grid[y][x]) {
-          grid[y][x] = 1;
-          findPath(robotPos);
-          updateInfo();
-          updateScore();
-        }
-      }
-    }
-
-    canvas.addEventListener('mousedown', (e) => {
-      if (paused) return;
-      drawing = true;
-      const { x, y } = getGridCoords(e);
-      tryDrawWall(x, y);
-    });
-
-    canvas.addEventListener('mouseup', () => {
-      drawing = false;
-    });
-
-    canvas.addEventListener('mouseleave', () => {
-      drawing = false;
-    });
-
-    canvas.addEventListener('mousemove', (e) => {
-      if (paused) return;
-      if (drawing) {
-        const { x, y } = getGridCoords(e);
-        tryDrawWall(x, y);
-      }
-    });
-
-    // Touch support
-    canvas.addEventListener('touchstart', (e) => {
-      if (paused) return;
-      e.preventDefault();
-      drawing = true;
-      const { x, y } = getGridCoords(e);
-      tryDrawWall(x, y);
-    }, { passive: false });
-
-    canvas.addEventListener('touchmove', (e) => {
-      if (paused) return;
-      e.preventDefault();
-      if (drawing) {
-        const { x, y } = getGridCoords(e);
-        tryDrawWall(x, y);
-      }
-    }, { passive: false });
-
-    canvas.addEventListener('touchend', (e) => {
-      drawing = false;
-    });
 
     // Draw the grid, walls, start, goal, and robot
     function draw_ori() {
@@ -242,8 +181,8 @@
     function draw() {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-      ctx.fillStyle = 'orange';
-      ctx.fillRect(humanPos.x * cellSize, humanPos.y * cellSize, cellSize, cellSize);
+     // ctx.fillStyle = 'orange';
+     // ctx.fillRect(humanPos.x * cellSize, humanPos.y * cellSize, cellSize, cellSize);
       
       // Draw grid background (optional light gray lines)
       for (let y = 0; y < gridSize; y++) {
