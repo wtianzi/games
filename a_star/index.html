@@ -273,8 +273,14 @@
     }
 
     // Heuristic for A*
+    //if action is 4 direction
+    //function heuristic(a, b) {
+    //  return Math.abs(a.x - b.x) + Math.abs(a.y - b.y);
+    //}
     function heuristic(a, b) {
-      return Math.abs(a.x - b.x) + Math.abs(a.y - b.y);
+        const dx = a.x - b.x;
+        const dy = a.y - b.y;
+        return dx * dx + dy * dy;
     }
 
     // A* pathfinding from current robot position to goal
