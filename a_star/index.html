@@ -281,6 +281,9 @@
         const dx = a.x - b.x;
         const dy = a.y - b.y;
         return dx * dx + dy * dy;
+      
+        // octile distance
+        //return (dx + dy) + (Math.SQRT2 - 2) * Math.min(dx, dy);
     }
 
     // A* pathfinding from current robot position to goal
