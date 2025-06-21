@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Joystick Ball Control</title>
+  <style>
+    body {
+      margin: 0;
+      overflow: hidden;
+      background-color: #f0f0f0;
+      touch-action: none;
+      user-select: none;
+    }
+
+    #joystick-base {
+      position: fixed;
+      bottom: 100px;
+      left: 100px;
+      width: 120px;
+      height: 120px;
+      background: rgba(200, 200, 200, 0.3);
+      border-radius: 50%;
+      touch-action: none;
+    }
+
+    #joystick-thumb {
+      position: absolute;
+      width: 60px;
+      height: 60px;
+      background: rgba(100, 100, 100, 0.7);
+      border-radius: 50%;
+      top: 30px;
+      left: 30px;
+      transition: all 0.1s ease;
+    }
+
+    #output {
+      position: fixed;
+      top: 20px;
+      left: 20px;
+      background: white;
+      padding: 10px 20px;
+      border-radius: 10px;
+      box-shadow: 0 0 8px rgba(0,0,0,0.1);
+    }
+
+    #ball {
+      position: absolute;
+      width: 50px;
+      height: 50px;
+      background: dodgerblue;
+      border-radius: 50%;
+      top: 300px;
+      left: 300px;
+    }
+  </style>
+</head>
+<body>
+
+  <div id="joystick-base">
+    <div id="joystick-thumb"></div>
+  </div>
+  <div id="output">Move: x=0.00, y=0.00</div>
+  <div id="ball"></div>
+
+  <script>
+    const base = document.getElementById('joystick-base');
+    const thumb = document.getElementById('joystick-thumb');
+    const output = document.getElementById('output');
+    const ball = document.getElementById('ball');
+
+    let dragging = false;
+    const radius = 60;
+
+    let moveX = 0;
+    let moveY = 0;
+
+    let ballX = 300;
+    let ballY = 300;
+
+    const getCenter = () => {
+      const rect = base.getBoundingClientRect();
+      return {
+        x: rect.left + rect.width / 2,
+        y: rect.top + rect.height / 2
+      };
+    };
+
+    function setThumbPosition(x, y) {
+      thumb.style.left = `${60 + x - 30}px`;
+      thumb.style.top = `${60 + y - 30}px`;
+    }
+
+    function sendMove(x, y) {
+      moveX = x;
+      moveY = y;
+      output.textContent = `Move: x=${x.toFixed(2)}, y=${y.toFixed(2)}`;
+    }
+
+    function startDrag(e) {
+      dragging = true;
+    }
+
+    function endDrag() {
+      dragging = false;
+      setThumbPosition(0, 0);
+      sendMove(0, 0);
+    }
+
+    function onDrag(e) {
+      if (!dragging) return;
+      let clientX, clientY;
+      if (e.touches) {
+        clientX = e.touches[0].clientX;
+        clientY = e.touches[0].clientY;
+      } else {
+        clientX = e.clientX;
+        clientY = e.clientY;
+      }
+
+      const center = getCenter();
+      const dx = clientX - center.x;
+      const dy = clientY - center.y;
+      const dist = Math.min(Math.sqrt(dx * dx + dy * dy), radius);
+      const angle = Math.atan2(dy, dx);
+
+      const x = dist * Math.cos(angle);
+      const y = dist * Math.sin(angle);
+
+      setThumbPosition(x, y);
+      sendMove(x / radius, y / radius);
+    }
+
+    function updateBall() {
+      const speed = 2; // control speed
+      ballX += moveX * speed;
+      ballY += moveY * speed;
+
+      // Boundary check
+      ballX = Math.max(0, Math.min(window.innerWidth - 50, ballX));
+      ballY = Math.max(0, Math.min(window.innerHeight - 50, ballY));
+
+      ball.style.left = `${ballX}px`;
+      ball.style.top = `${ballY}px`;
+
+      requestAnimationFrame(updateBall);
+    }
+
+    // Start animation loop
+    updateBall();
+
+    // Event listeners
+    base.addEventListener('touchstart', startDrag);
+    base.addEventListener('touchmove', onDrag);
+    base.addEventListener('touchend', endDrag);
+    base.addEventListener('mousedown', startDrag);
+    document.addEventListener('mousemove', onDrag);
+    document.addEventListener('mouseup', endDrag);
+  </script>
+
+</body>
+</html>
