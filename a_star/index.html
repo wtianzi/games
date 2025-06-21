@@ -75,7 +75,18 @@
     Result here
   </div>
 
-  <script>
+  <script type="module">
+    import { createJoystick } from './joystick.js';
+
+  let moveVector = { x: 0, y: 0 };
+  let humanPos = { x: 5, y: 5 };
+
+  // Hook joystick
+  createJoystick((x, y) => {
+    moveVector = { x, y };
+  });
+
+  
 
     const resultMessage = document.getElementById('resultMessage');
     const canvas = document.getElementById('gameCanvas');
