@@ -76,6 +76,16 @@
   </div>
 
   <script>
+    import { createJoystick } from './joystick.js';
+
+    let moveVector = { x: 0, y: 0 };
+    let humanPos = { x: 5, y: 5 };
+
+    // Hook joystick
+    createJoystick((x, y) => {
+      moveVector = { x, y };
+    });
+
     const resultMessage = document.getElementById('resultMessage');
     const canvas = document.getElementById('gameCanvas');
     const ctx = canvas.getContext('2d');
@@ -232,6 +242,9 @@
     function draw() {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
+      ctx.fillStyle = 'orange';
+      ctx.fillRect(humanPos.x * cellSize, humanPos.y * cellSize, cellSize, cellSize);
+      
       // Draw grid background (optional light gray lines)
       for (let y = 0; y < gridSize; y++) {
         for (let x = 0; x < gridSize; x++) {
@@ -376,6 +389,24 @@
     function update() {
       if (paused) return;
 
+      // --- human control
+      if (moveVector.x !== 0 || moveVector.y !== 0) {
+      const newX = humanPos.x + moveVector.x;
+      const newY = humanPos.y + moveVector.y;
+
+      if (
+        newX >= 0 && newX < gridSize &&
+        newY >= 0 && newY < gridSize &&
+        grid[newY][newX] !== 1
+      ) {
+        humanPos.x = newX;
+        humanPos.y = newY;
+      }
+
+      moveVector = { x: 0, y: 0 };
+    }
+
+    //-------------------------
       tick++;
 
       if (!pathExists) {
